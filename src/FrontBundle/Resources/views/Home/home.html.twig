@@ -1,0 +1,7 @@
+{% extends "FrontBundle:Common:layout.html.twig" %}
+{% block title %}{{ 'menu.home'|trans({}, 'messages') }}{% endblock %}
+{% block content %}
+    {{ form_start(form) }}
+    {{ form_widget(form.number, {'attr': {'type': 'number', 'min' : '0', 'max' : '100'}}) }}
+    {{ form_end(form) }}
+{% endblock %}
