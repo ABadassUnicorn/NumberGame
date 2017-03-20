@@ -1,7 +1,7 @@
 {% extends "FrontBundle:Common:layout.html.twig" %}
 {% block title %}{{ 'menu.home'|trans({}, 'messages') }}{% endblock %}
 {% block content %}
-    {{ form_start(form, {'attr': { 'v-on:submit.prevent': ''}}) }}
+    {{ form_start(form, {'attr': { 'v-on:submit.prevent': 'onSubmit'}}) }}
     <div class="row">
         <div class="col-sm-3">
             {{ form_widget(form.number, {'attr': {'type': 'number', 'min' : limitService.getMinValue, 'max' : limitService.getMaxValue}}) }}
@@ -9,11 +9,14 @@
         <div class="col-sm-3">
             {{ form_widget(form.save, {'attr': {' v-on:click': 'handleResponse'}}) }}
         </div>
-    </div>    
+    </div>
     {{ form_end(form) }}
+    <div id="resultLog">
+        
+    </div>    
 {% endblock %}
 {% block javascripts_body %}
-    <script>
+    <script  type="text/javascript">
         $( document ).ready(function() {
             var formSave = new Vue({
                 el: '#form_save',
@@ -23,10 +26,28 @@
                 // define methods under the `methods` object
                 methods: {
                   handleResponse: function (event) {
+                    //prevent symfony default form submission
                     if (event){
                         event.preventDefault()
                     }
-                    //ajax
+                    var ajaxPathBase = "{{ path('number_game_ajax_check_answer', { 'number': 'numberParam'}) }}";
+                    var inputValue = $('#form_number').val();
+                    var ajaxPathParameter = ajaxPathBase.replace("numberParam", inputValue)
+
+                    this.$http.get(ajaxPathParameter).then(response => {
+                        var stringAnswer = JSON.stringify(response.body);
+                        var stringAnswer = stringAnswer.replace("{", '');
+                        var stringAnswer = stringAnswer.replace("}", '');
+                        var stringAnswer = stringAnswer.replace(/"/g, '');
+                        var stringAnsweArray = stringAnswer.split(":");
+                        var sign = stringAnsweArray[0];
+                        var number = stringAnsweArray[1];
+                        var resultString = sign + ' que ' + number + '<br>';
+                        console.log(resultString);
+                        $("#resultLog").append(resultString);
+                    }, response => {
+                      // error callback
+                    });
                   }
                 }
               })
