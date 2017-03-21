@@ -1,6 +1,9 @@
 {% extends "FrontBundle:Common:layout.html.twig" %}
 {% block title %}{{ 'menu.home'|trans({}, 'messages') }}{% endblock %}
 {% block content %}
+    <div id="divwin" v-if="win">
+        <h1 id="winText">{{ 'win'|trans({}, 'messages') }}</h1>
+    </div>
     {{ form_start(form, {'attr': { 'v-on:submit.prevent': 'onSubmit'}}) }}
     <div class="row">
         <div class="col-sm-3">
@@ -11,13 +14,17 @@
         </div>
     </div>
     {{ form_end(form) }}
-    <div id="resultLog">
-        
-    </div>    
+    <div id="resultLog"></div>
 {% endblock %}
 {% block javascripts_body %}
     <script  type="text/javascript">
         $( document ).ready(function() {
+            var divwin = new Vue({
+                el: '#divwin',
+                data: {
+                  win: false
+                }
+            })
             var formSave = new Vue({
                 el: '#form_save',
                 data: {
@@ -42,9 +49,13 @@
                         var stringAnsweArray = stringAnswer.split(":");
                         var sign = stringAnsweArray[0];
                         var number = stringAnsweArray[1];
-                        var resultString = sign + ' que ' + number + '<br>';
-                        console.log(resultString);
-                        $("#resultLog").append(resultString);
+                        if(sign == '='){
+                            divwin.win = true;
+                        }
+                        else{
+                            var resultString = sign + ' que ' + number + '<br>';
+                            $("#resultLog").append(resultString);
+                        }
                     }, response => {
                       // error callback
                     });

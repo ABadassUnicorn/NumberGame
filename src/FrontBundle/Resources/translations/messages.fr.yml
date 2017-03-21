@@ -1,4 +1,6 @@
 base_page_title: "Number Game - "
 menu:
     home: "Jouer"
-Save: Tester ma réponse
+Save: "Tester ma réponse"
+win: "Bravo, vous avez trouvé le nombre mystère "
+error: "Une erreur est survenue merci de réinitialiser la page"
