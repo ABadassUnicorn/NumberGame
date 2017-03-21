@@ -1,4 +1,9 @@
 base_page_title: "Number Game - "
+form:
+    plus: "+"
+    minus: "-"
+    plusMax: "Le nombre ne peut pas etre plus grand que %max%"
+    minusMax: "Le nombre ne peut pas etre plus petit que %min%"
 menu:
     home: "Jouer"
 Save: "Tester ma réponse"

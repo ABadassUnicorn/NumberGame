@@ -6,3 +6,8 @@ parameters:
 services:
     limitService:
         class: FrontBundle\Service\Limit
+    apiViolation:
+        class: FrontBundle\EventListener\ApiViolationListener
+        arguments: [ '@service_container' ]
+        tags:
+            - { name: kernel.event_listener, event: api.violation, method: logViolation }

@@ -7,7 +7,13 @@
     {{ form_start(form, {'attr': { 'v-on:submit.prevent': 'onSubmit'}}) }}
     <div class="row">
         <div class="col-sm-3">
-            {{ form_widget(form.number, {'attr': {'type': 'number', 'min' : limitService.getMinValue, 'max' : limitService.getMaxValue}}) }}
+            {{ form_widget(form.number, {'attr': {'type': 'number', 'min' : limitService.getMinValue, 'max' : limitService.getMaxValue, 'default':0}}) }}
+        </div>
+        <div class="col-sm-3">
+            {{ form_widget(form.plus, {'attr': {' v-on:click': 'plus'}}) }}
+        </div>
+        <div class="col-sm-3">
+            {{ form_widget(form.minus, {'attr': {' v-on:click': 'minus'}}) }}
         </div>
         <div class="col-sm-3">
             {{ form_widget(form.save, {'attr': {' v-on:click': 'handleResponse'}}) }}
@@ -19,6 +25,7 @@
 {% block javascripts_body %}
     <script  type="text/javascript">
         $( document ).ready(function() {
+            $("#form_number").val(0);
             var divwin = new Vue({
                 el: '#divwin',
                 data: {
@@ -32,36 +39,76 @@
                 },
                 // define methods under the `methods` object
                 methods: {
-                  handleResponse: function (event) {
-                    //prevent symfony default form submission
-                    if (event){
-                        event.preventDefault()
-                    }
-                    var ajaxPathBase = "{{ path('number_game_ajax_check_answer', { 'number': 'numberParam'}) }}";
-                    var inputValue = $('#form_number').val();
-                    var ajaxPathParameter = ajaxPathBase.replace("numberParam", inputValue)
+                    handleResponse: function (event) {
+                        //prevent symfony default form submission
+                        if (event){
+                            event.preventDefault()
+                        }
+                        var ajaxPathBase = "{{ path('number_game_ajax_check_answer', { 'number': 'numberParam'}) }}";
+                        var inputValue = $('#form_number').val();
+                        var ajaxPathParameter = ajaxPathBase.replace("numberParam", inputValue)
 
-                    this.$http.get(ajaxPathParameter).then(response => {
-                        var stringAnswer = JSON.stringify(response.body);
-                        var stringAnswer = stringAnswer.replace("{", '');
-                        var stringAnswer = stringAnswer.replace("}", '');
-                        var stringAnswer = stringAnswer.replace(/"/g, '');
-                        var stringAnsweArray = stringAnswer.split(":");
-                        var sign = stringAnsweArray[0];
-                        var number = stringAnsweArray[1];
-                        if(sign == '='){
-                            divwin.win = true;
-                        }
-                        else{
-                            var resultString = sign + ' que ' + number + '<br>';
-                            $("#resultLog").append(resultString);
-                        }
-                    }, response => {
-                      // error callback
-                    });
-                  }
+                        this.$http.get(ajaxPathParameter).then(response => {
+                            var stringAnswer = JSON.stringify(response.body);
+                            var stringAnswer = stringAnswer.replace("{", '');
+                            var stringAnswer = stringAnswer.replace("}", '');
+                            var stringAnswer = stringAnswer.replace(/"/g, '');
+                            var stringAnsweArray = stringAnswer.split(":");
+                            var sign = stringAnsweArray[0];
+                            var number = stringAnsweArray[1];
+                            if(sign == '='){
+                                divwin.win = true;
+                            }
+                            else{
+                                var resultString = sign + ' que ' + number + '<br>';
+                                $("#resultLog").append(resultString);
+                            }
+                        }, response => {
+                          // error callback
+                        });
+                    }
                 }
-              })
+            });
+            var formPlus = new Vue({
+                el: '#form_plus',
+                data: {
+                  name: 'Vue.js'
+                },
+                // define methods under the `methods` object
+                methods: {
+                    plus: function (event) {
+                            var max = {{limitService.getMaxValue}};
+                            var maxError = "{{ 'form.plusMax' | trans({'%max%': limitService.getMaxValue}, "messages") }}<br>";
+                            if($('#form_number').val() == max){
+                                $("#resultLog").append(maxError);
+                            } else {
+                                var newAnswer = parseInt($('#form_number').val()) + 1;
+                                console.log(newAnswer);
+                                $('#form_number').val(newAnswer);                        
+                            }
+                        }
+                }
+            });
+            var formMinus = new Vue({
+                el: '#form_minus',
+                data: {
+                  name: 'Vue.js'
+                },
+                // define methods under the `methods` object
+                methods: {
+                    minus: function (event) {
+                        var min = {{limitService.getMinValue}};
+                        var minError = "{{ 'form.minusMax' | trans({'%min%': limitService.getMinValue}, "messages") }}<br>";
+                        if($('#form_number').val() == min){
+                            $("#resultLog").append(minError);
+                        } else {
+                            var newAnswer = parseInt($('#form_number').val()) - 1;
+                            console.log(newAnswer);
+                            $('#form_number').val(newAnswer);
+                        }
+                    }
+                }
+            });
         });
     </script>
 {% endblock %}
